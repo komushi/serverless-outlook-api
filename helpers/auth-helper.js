@@ -1,18 +1,5 @@
 'use strict';
 var Q = require("q");
-var oauth2 = require('simple-oauth2').create(credentials);
-
-const credentials = {
-  client: {
-    id: 'f738ac64-0b60-4eaf-8d46-9fec07e33d3c',
-    secret: 'Lrfvhhjv1q9nUZbeDaVOJUC',
-  },
-  auth: {
-    tokenHost: 'https://login.microsoftonline.com',
-    authorizePath: 'cloudnativeltd.onmicrosoft.com/oauth2/v2.0/authorize',
-    tokenPath: 'cloudnativeltd.onmicrosoft.com/oauth2/v2.0/token'
-  }
-}
 
 const tokenConfig = {
   scope: 'https://graph.microsoft.com/.default'
@@ -21,7 +8,22 @@ const tokenConfig = {
 // todo: save to somewhere for persistence
 var token;
 
-function getToken() {
+function getToken(clientId, clientSecret, tenant) {
+
+  var credentials = {
+    client: {
+      id: clientId,
+      secret: clientSecret,
+    },
+    auth: {
+      tokenHost: 'https://login.microsoftonline.com',
+      authorizePath: tenant + '.onmicrosoft.com/oauth2/v2.0/authorize',
+      tokenPath: tenant + '.onmicrosoft.com/oauth2/v2.0/token'
+    }
+  }
+
+  var oauth2 = require('simple-oauth2').create(credentials);
+
   var d = Q.defer();
 
   if (!token || token.token.expires_at.getTime() <= Date.now()) {
@@ -30,6 +32,7 @@ function getToken() {
     oauth2.clientCredentials
       .getToken(tokenConfig)
       .then((result) => {
+        console.log("Access Token retrieved");
         token = oauth2.accessToken.create(result);
         d.resolve(token);
       })

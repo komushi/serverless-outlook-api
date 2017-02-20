@@ -6,40 +6,42 @@ var outlook = require('node-outlook');
 var myuser = {};
 
 //GET /event operationId
-var getEvents = function(event, callback) {
+module.exports.getEvents = (event, callback) => {
 
-	myuser.email = event.queryParameters.user + '@' + event.queryParameters.org + '.onmicrosoft.com';
+	myuser.email = event.queryStringParameters.user + '@' + event.queryStringParameters.tenant + '.onmicrosoft.com';
 
-	authHelper.getToken()
+	authHelper.getToken(event.queryStringParameters.clientId, event.queryStringParameters.clientSecret, event.queryStringParameters.tenant)
 		.then((token) => {
-			return getAllEvents(token);
+      console.log("token!!!!!!!!!!!!!!!!!");
+      console.log(token);
+			return getEvents(token);
   	})
 		.then((events) => {
-			res.json({ events: events});
+      callback(null, JSON.stringify({ events: events }));
   	})
-    .catch(function (error) {
-      res.status(204).send();
+    .catch((error) => {
+      callback(error, null);
     });
 }
 
-module.exports = (event, callback) => {
-	var params = 
-		{
-			org: event.queryParameters.org,
-			Key: event.queryParameters.user
-		};
+//GET /event operationId
+module.exports.getOneEvent = (event, callback) => {
 
-  S3.getObject(params).promise().then((result) => {
-    console.log('get-object done');
-    callback(null, result.Body);
-  }).catch(function(reason) {
-		console.log('get-object error');
-  	console.log(JSON.stringify(reason));
-		callback(reason, null);
-	});
+  myuser.email = event.queryStringParameters.user + '@' + event.queryStringParameters.tenant + '.onmicrosoft.com';
+
+  authHelper.getToken(event.queryStringParameters.clientId, event.queryStringParameters.clientSecret, event.queryStringParameters.tenant)
+    .then((token) => {
+      return getOneEvent(token, event.pathParameters.id);
+    })
+    .then((event) => {
+      callback(null, JSON.stringify({ event: event }));
+    })
+    .catch((error) => {
+      callback(error, null);
+    });
 }
 
-var getAllEvents = function(token) {
+var getEvents = function(token) {
 
 	var d = Q.defer();
 
@@ -54,6 +56,9 @@ var getAllEvents = function(token) {
   outlook.base.setApiEndpoint('https://graph.microsoft.com/v1.0');
   // Set the anchor mailbox to the user's SMTP address
   outlook.base.setAnchorMailbox(myuser.email);
+
+  console.log("before getEvents")
+  console.log(JSON.stringify({user: myuser, token: token.token.access_token, odataParams: queryParams}));
 
   outlook.calendar.getEvents({user: myuser, token: token.token.access_token, odataParams: queryParams},
     function(error, result){
@@ -85,6 +90,39 @@ var getAllEvents = function(token) {
   return d.promise;
 }
 
-module.exports = {getEvents : getEvents};
 
 
+var getOneEvent = function(token, id) {
+
+  var d = Q.defer();
+
+  // Set up oData parameters
+  var queryParams = {
+    '$select': 'Subject,Start,End,Attendees'
+  };
+
+  // Set the API endpoint to use the v2.0 endpoint
+  outlook.base.setApiEndpoint('https://graph.microsoft.com/v1.0');
+  // Set the anchor mailbox to the user's SMTP address
+  outlook.base.setAnchorMailbox(myuser.email);
+console.log("getoneevent parameters!!");
+console.log(JSON.stringify({user: myuser, token: token.token.access_token, eventId: id, odataParams: queryParams}));
+
+  outlook.calendar.getEvent({user: myuser, token: token.token.access_token, eventId: id, odataParams: queryParams},
+    function(error, result){
+      if (error) {
+        console.log('getEvent returned an error: ' + error);
+        d.reject(new Error(error));
+      } else if (result) {
+
+        var attendees = [];
+        result.attendees.forEach(function(attendee) { 
+          attendees.push({name : attendee.emailAddress.name, email : attendee.emailAddress.address});
+        });
+        
+        d.resolve({id: result.id, subject : result.subject, start : result.start.dateTime, end : result.end.dateTime, attendees : attendees});
+      }
+    });
+
+  return d.promise;
+}

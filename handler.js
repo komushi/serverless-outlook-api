@@ -1,32 +1,40 @@
 'use strict';
 
+const eventHandler = require('./handlers/event');
+const mailHandler = require('./handlers/mail');
+
+function makeResponse(error, result) {
+  const statusCode = error && error.statusCode || 200;
+  return {
+    statusCode,
+    headers: {
+      "Access-Control-Allow-Origin" : "*",
+      "Content-Type": "application/json"
+    },
+    body: result
+  }
+}
+
+
 module.exports.getEvents = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
-
-  callback(null, response);
-
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+  eventHandler.getEvents(event, (error, result) => {
+    const response = makeResponse(error, result)
+    context.succeed(response)
+  });
 };
 
+module.exports.getOneEvent = (event, context, callback) => {
+  eventHandler.getOneEvent(event, (error, result) => {
+    const response = makeResponse(error, result)
+    context.succeed(response)
+  });
+};
 
 module.exports.getMails = (event, context, callback) => {
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: 'Go Serverless v1.0! Your function executed successfully!',
-      input: event,
-    }),
-  };
-
-  callback(null, response);
-
-  // Use this code if you don't use the http event with the LAMBDA-PROXY integration
-  // callback(null, { message: 'Go Serverless v1.0! Your function executed successfully!', event });
+  mailHandler.getMails(event, (error, result) => {
+    const response = makeResponse(error, result)
+    context.succeed(response)
+  });
 };
+
+
