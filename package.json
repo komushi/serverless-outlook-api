@@ -1,0 +1,20 @@
+{
+  "name": "serverless-outlook-api",
+  "version": "1.0.0",
+  "description": "An Outlook API based on Serverless Framwork for AWS",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.12.0",
+    "node-outlook": "^1.1.6",
+    "q": "^1.4.1",
+    "simple-oauth2": "^1.0.1"
+  },
+  "devDependencies": {
+    "serverless-offline": "^3.8.3"
+  }
+}
