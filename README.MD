@@ -70,5 +70,23 @@ $ curl 'https://<api_gateway_path>/event?user=<username>&tenant=<tenant>&clientI
 ```
 
 ```
-$ curl 'https://4xdwwzrv7l.execute-api.ap-northeast-1.amazonaws.com/dev/event?user=xu&tenant=cloudnativeltd&clientId=f738ac64-0b60-4eaf-8d46-9fec07e33d3c&clientSecret=Lrfvhhjv1q9nUZbeDaVOJUC'
+$ curl 'https://a5mkl153a8.execute-api.ap-northeast-1.amazonaws.com/dev/event?user=xu&tenant=cloudnativeltd&clientId=f738ac64-0b60-4eaf-8d46-9fec07e33d3c&clientSecret=Lrfvhhjv1q9nUZbeDaVOJUC'
+```
+
+### 3-3. Get a certain event from the user account
+```
+$ curl 'https://<api_gateway_path>/event/<event_id>?user=<username>&tenant=<tenant>&clientId=<client_id>&clientSecret=<client_secret>'
+```
+
+```
+$ curl 'https://a5mkl153a8.execute-api.ap-northeast-1.amazonaws.com/dev/event/AAMkADFiNGY4NDNkLTQyMzYtNGVkMi1hNzFmLTBlMTA5NjQ1NTc0OQBGAAAAAABvQUD3H9TbQ7h4lEagnJEwBwBRJkKCQ9R3RITtxHO7XbsLAAAAAAENAABRJkKCQ9R3RITtxHO7XbsLAAAUgn2mAAA=?user=xu&tenant=cloudnativeltd&clientId=f738ac64-0b60-4eaf-8d46-9fec07e33d3c&clientSecret=Lrfvhhjv1q9nUZbeDaVOJUC'
+```
+
+### 3-4. Get all the mails from the user account
+```
+$ curl 'http://<api_gateway_path>/mail?user=<username>&tenant=<tenant>&clientId=<client_id>&clientSecret=<client_secret>'
+```
+
+```
+$ curl 'https://a5mkl153a8.execute-api.ap-northeast-1.amazonaws.com/dev/mail?user=xu&tenant=cloudnativeltd&clientId=f738ac64-0b60-4eaf-8d46-9fec07e33d3c&clientSecret=Lrfvhhjv1q9nUZbeDaVOJUC'
 ```
